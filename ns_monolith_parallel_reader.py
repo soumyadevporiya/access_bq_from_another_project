@@ -135,12 +135,18 @@ if __name__ == '__main__':
     )
 
     consumer = KafkaConsumer('my-topic', bootstrap_servers=['35.225.83.11:9094'], auto_offset_reset='latest')
-    q1 = Queue()
-    p1 = Process(target=process_task, args=(q1,))
-
-    p1.start()
 
     for message in consumer:
+        list_of_process_qs = []
+        list_of_process = []
+
+        NUMBER_OF_PROCESSES = 2
+
+        for i in range(NUMBER_OF_PROCESSES):
+            list_of_process_qs.append(Queue())
+            list_of_process.append(Process(target=process_task, args=(list_of_process_qs[i],)))
+            list_of_process[i].start()
+
         producer = KafkaProducer(bootstrap_servers=['35.225.83.11:9094'], api_version=(0, 10))
         received = {"Received at: ": str(int(round(time.time())))}
         producer.send('my-second-topic', json.dumps(received).encode('utf-8'))
@@ -169,10 +175,12 @@ if __name__ == '__main__':
             }
 
             counter = counter + 1
-            q1.put(data_dict)
+            modulus = counter % NUMBER_OF_PROCESSES
+            list_of_process_qs[modulus].put(data_dict)
 
-        q1.put("Reading has ended, Please Come Out")
-        p1.join()
+        for i in range(NUMBER_OF_PROCESSES):
+            list_of_process_qs[i].put("Reading has ended, Please Come Out")
+            list_of_process[i].join()
 
         completed_msg = {"Ended at: ": str(int(round(time.time())))}
         producer.send('my-second-topic', json.dumps(completed_msg).encode('utf-8'))
