@@ -95,7 +95,7 @@ def process_task(q1: Queue):
 if __name__ == '__main__':
 
 
-    os.environ['GOOGLE_APPLICATION_CREDENTIALS'] = 'D:/googleapi/smooth-league-382303-bb2d5d81cbed.json'
+    #os.environ['GOOGLE_APPLICATION_CREDENTIALS'] = 'D:/googleapi/smooth-league-382303-bb2d5d81cbed.json'
 
     project_id_billing = 'smooth-league-382303'  # A Project where you have biquery.readsession permission
 
