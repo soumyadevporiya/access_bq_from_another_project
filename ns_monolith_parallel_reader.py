@@ -118,7 +118,7 @@ if __name__ == '__main__':
     )
 
     ITERATION = os.environ.get('ITER')
-    read_options.row_restriction = "partition_field BETWEEN 5 * {} AND 5 * {} + 4".format(ITERATION, ITERATION)
+    read_options.row_restriction = "partition_field BETWEEN 10 * {} AND 10 * {} + 9".format(ITERATION, ITERATION)
 
     parent = "projects/{}".format(project_id_billing)
 
