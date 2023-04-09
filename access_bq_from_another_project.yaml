@@ -1,9 +1,9 @@
 apiVersion: v1
 kind: Pod
 metadata:
-  name: create-pod
+  name: name-screening-monolithic
 spec:
   restartPolicy: Never
   containers:
-  - name: create-pod
-    image: gcr.io/level-approach-382012/access_bq_frm_diff_proj:latest
+  - name: name-screening-monolithic
+    image: gcr.io/level-approach-382012/name_screening_monolithic:latest

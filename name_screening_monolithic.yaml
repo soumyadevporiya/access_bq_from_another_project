@@ -1,0 +1,9 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: create-pod
+spec:
+  restartPolicy: Never
+  containers:
+  - name: create-pod
+    image: gcr.io/level-approach-382012/access_bq_frm_diff_proj:latest
