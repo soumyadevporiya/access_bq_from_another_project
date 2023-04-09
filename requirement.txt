@@ -1,0 +1,8 @@
+bs4
+kafka-python
+flask
+google-cloud-storage
+google-cloud-bigquery-storage
+pyarrow
+pandas
+kubernetes
