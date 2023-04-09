@@ -52,8 +52,8 @@ def process_task(q1: Queue):
             data_2 = {'sanctioned_name': payload['sanctioned_name']}
             df_watchlist = pd.DataFrame(data_2)
 
-            #print(df_customer)
-            #print(df_watchlist)
+            # print(df_customer)
+            # print(df_watchlist)
 
             df_customer['key'] = 1
             df_watchlist['key'] = 1
@@ -62,7 +62,7 @@ def process_task(q1: Queue):
 
             dict_merged = df_merged.to_dict('records')
 
-            #print(dict_merged)
+            # print(dict_merged)
             i = 0
             alert = {}
 
@@ -74,11 +74,12 @@ def process_task(q1: Queue):
                     alert[str(i)] = dict(zip(('customer_id', 'customer_name', 'sanctioned_name', 'edit_distance'),
                                              (each['customer_id'], each['customer_name'], each['sanctioned_name'],
                                               score)))
-                    #print(alert[str(i)])
+                    # print(alert[str(i)])
             # print(alert)
             packets_processed = packets_processed + 1
-            msg = "Finish Time: " + str(int(round(time.time()))) + "  Number of Packets: " + str(packets_processed) + " Alert: " + alert.__str__()
-            print(msg)
+            msg = "Finish Time: " + str(int(round(time.time()))) + "  Number of Packets: " + str(
+                packets_processed) + " Alert: " + alert.__str__()
+            # print(msg)
             if i >= 1:
                 producer_local.send('my-second-topic', json.dumps(msg).encode('utf-8'))
 
@@ -87,15 +88,9 @@ def process_task(q1: Queue):
             break
 
 
-
-
-
-
-
 if __name__ == '__main__':
 
-
-    #os.environ['GOOGLE_APPLICATION_CREDENTIALS'] = 'D:/googleapi/smooth-league-382303-bb2d5d81cbed.json'
+    # os.environ['GOOGLE_APPLICATION_CREDENTIALS'] = 'D:/googleapi/smooth-league-382303-bb2d5d81cbed.json'
 
     project_id_billing = 'smooth-league-382303'  # A Project where you have biquery.readsession permission
 
@@ -171,21 +166,22 @@ if __name__ == '__main__':
             else:
                 q2.put(data_dict)
             # calc_editdistance(payload=data_dict)
-            #url_post = 'http://192.168.101.163:80/hello/post'  # 'http://34.67.224.29:80/hello/post'
-            #post_response = requests.post(url_post, data=data_dict)
-            #x = post_response.text  # side_input
-            #print(x)
+            # url_post = 'http://192.168.101.163:80/hello/post'  # 'http://34.67.224.29:80/hello/post'
+            # post_response = requests.post(url_post, data=data_dict)
+            # x = post_response.text  # side_input
+            # print(x)
 
-            #if counter == 1:
-                #break
-            #print("Packet No: " + str(counter))
-
-        if producer is not None:
-            producer.close()
-
+            # if counter == 1:
+            # break
+            # print("Packet No: " + str(counter))
 
         q1.put("Reading has ended, Please Come Out")
         p1.join()
         q2.put("Reading has ended, Please Come Out")
         p2.join()
-        print("Experiment Ended")
+
+        completed_msg = {"Ended at: ": str(int(round(time.time())))}
+        producer.send('my-second-topic', json.dumps(completed_msg).encode('utf-8'))
+        if producer is not None:
+            producer.close()
+        # print("Experiment Ended")
