@@ -18,6 +18,14 @@ parallel. However, free account does not support big cluster, so the parallelism
 In cloud environment, with only one reader, 100 partitions are processed within 224 seconds. one reader creates two
 additional parallel processes for edit-distance calculation.
 
+In cloud environment, with 10 parallel reader, each reader reading 10 partitions, it takes 70 seconds to complete.
+One node hosts 7 PODs, other two only three. that is why it is not full parallel processing. Let us see ways to create
+pods by specifying nodes.
+
+In cloud environment, with 10 parallel reader, each reader reading 10 partitions, it takes 41 seconds to complete.
+One node hosts 7 PODs, other two only three. that is why it is not full parallel processing. We scheduled 4,4,2 pods on
+three nodes. could be more balanced. Let us try. but scheduling 3,4,3 did not give much better performance.
+
 '''
 import requests
 import time
@@ -108,9 +116,7 @@ if __name__ == '__main__':
     read_options = ReadSession.TableReadOptions(
         selected_fields=["id", "name"]
     )
-    # read_options.row_restriction = "partition_field like '%INSBI1%'"
-    # read_options.row_restriction = "partition_field between 0 and 99"
-    # PARTITION_FIELD = os.environ.get('PARTITION_FIELD')
+
     ITERATION = os.environ.get('ITER')
     read_options.row_restriction = "partition_field BETWEEN 10 * {} AND 10 * {} + 9".format(ITERATION, ITERATION)
 
@@ -132,11 +138,7 @@ if __name__ == '__main__':
     q1 = Queue()
     p1 = Process(target=process_task, args=(q1,))
 
-    q2 = Queue()
-    p2 = Process(target=process_task, args=(q2,))
-
     p1.start()
-    p2.start()
 
     for message in consumer:
         producer = KafkaProducer(bootstrap_servers=['35.225.83.11:9094'], api_version=(0, 10))
@@ -167,24 +169,10 @@ if __name__ == '__main__':
             }
 
             counter = counter + 1
-            if (counter % 2) == 1:
-                q1.put(data_dict)
-            else:
-                q2.put(data_dict)
-            # calc_editdistance(payload=data_dict)
-            # url_post = 'http://192.168.101.163:80/hello/post'  # 'http://34.67.224.29:80/hello/post'
-            # post_response = requests.post(url_post, data=data_dict)
-            # x = post_response.text  # side_input
-            # print(x)
-
-            # if counter == 1:
-            # break
-            # print("Packet No: " + str(counter))
+            q1.put(data_dict)
 
         q1.put("Reading has ended, Please Come Out")
         p1.join()
-        q2.put("Reading has ended, Please Come Out")
-        p2.join()
 
         completed_msg = {"Ended at: ": str(int(round(time.time())))}
         producer.send('my-second-topic', json.dumps(completed_msg).encode('utf-8'))
