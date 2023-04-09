@@ -33,7 +33,9 @@ import pandas as pd
 
 from multiprocessing import Process, Queue, Pool
 import multiprocessing as mp
+import warnings
 
+warnings.simplefilter(action='ignore', category=FutureWarning)
 
 
 def process_task(q1: Queue):
@@ -93,7 +95,7 @@ def process_task(q1: Queue):
 if __name__ == '__main__':
 
 
-    #os.environ['GOOGLE_APPLICATION_CREDENTIALS'] = 'D:/googleapi/smooth-league-382303-bb2d5d81cbed.json'
+    os.environ['GOOGLE_APPLICATION_CREDENTIALS'] = 'D:/googleapi/smooth-league-382303-bb2d5d81cbed.json'
 
     project_id_billing = 'smooth-league-382303'  # A Project where you have biquery.readsession permission
 
@@ -176,7 +178,7 @@ if __name__ == '__main__':
 
             #if counter == 1:
                 #break
-            print("Packet No: " + str(counter))
+            #print("Packet No: " + str(counter))
 
         if producer is not None:
             producer.close()
