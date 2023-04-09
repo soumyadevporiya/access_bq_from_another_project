@@ -58,7 +58,7 @@ def process_task(q1: Queue):
             df_customer['key'] = 1
             df_watchlist['key'] = 1
 
-            df_merged = pd.merge(df_customer, df_watchlist, on='key').drop('key', 1)
+            df_merged = pd.merge(df_customer, df_watchlist, on='key').drop(columns=['key'])
 
             dict_merged = df_merged.to_dict('records')
 
