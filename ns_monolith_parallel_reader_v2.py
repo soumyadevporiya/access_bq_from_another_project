@@ -104,7 +104,7 @@ def process_task(q1: Queue):
 if __name__ == '__main__':
     # os.environ['GOOGLE_APPLICATION_CREDENTIALS'] = 'D:/googleapi/smooth-league-382303-bb2d5d81cbed.json'
     # os.environ['GOOGLE_APPLICATION_CREDENTIALS'] = 'D:/googleapi/level-approach-382012-1b97f11ea02f.json'
-    # POD_TYPE = '2nd'
+    # POD_TYPE = '1st'
     POD_TYPE = os.environ.get('POD_TYPE')
 
     bqstorageclient = BigQueryReadClient()
@@ -138,61 +138,71 @@ if __name__ == '__main__':
     consumer = KafkaConsumer('my-topic', bootstrap_servers=['35.225.83.11:9094'], auto_offset_reset='latest')
 
     for message in consumer:
-        list_of_process_qs = []
-        list_of_process = []
-
-        NUMBER_OF_PROCESSES = 2
-
-        for i in range(NUMBER_OF_PROCESSES):
-            list_of_process_qs.append(Queue())
-            list_of_process.append(Process(target=process_task, args=(list_of_process_qs[i],)))
-            list_of_process[i].start()
 
         producer = KafkaProducer(bootstrap_servers=['35.225.83.11:9094'], api_version=(0, 10))
         received = {"Received at: ": str(int(round(time.time())))}
         producer.send('my-second-topic', json.dumps(received).encode('utf-8'))
-        stream = read_session.streams[0]  # read every stream from 0 to 3
-        reader = bqstorageclient.read_rows(stream.name)
+        # stream = read_session.streams[0]  # read every stream from 0 to 3
+        # reader = bqstorageclient.read_rows(stream.name)
 
         # Decode Message from Interface
         x1 = message.value
         x2 = x1.decode('utf8')
         new_sanction_list = []
         new_customer_list = []
+        executable = False
         if POD_TYPE == '2nd':
             new_customer_list = json.loads(x2)["customer_payload"]  # .split(',')
+            if len(new_customer_list) > 0:
+                executable = True
         else:
             new_sanction_list = json.loads(x2)["sanction_payload"]  # .split(',')
+            if len(new_sanction_list) > 0:
+                executable = True
 
         frames = []
         counter = 0
 
-        for my_message in reader.rows().pages:
-            df = my_message.to_dataframe()
-            if POD_TYPE == '2nd':
-                sanction_name = df['name'].tolist()
-                cust_id = ['Id Not Required'] * len(new_customer_list)
-                data_dict = {
-                    'customer_id': cust_id,
-                    'customer_name': new_customer_list,
-                    'sanctioned_name': sanction_name
-                }
-            else:
-                cust_id = df['id'].tolist()
-                cust_name = df['name'].tolist()
-                data_dict = {
-                    'customer_id': cust_id,
-                    'customer_name': cust_name,
-                    'sanctioned_name': new_sanction_list
-                }
+        if executable:
 
-            counter = counter + 1
-            modulus = counter % NUMBER_OF_PROCESSES
-            list_of_process_qs[modulus].put(data_dict)
+            stream = read_session.streams[0]
+            reader = bqstorageclient.read_rows(stream.name)
 
-        for i in range(NUMBER_OF_PROCESSES):
-            list_of_process_qs[i].put("Reading has ended, Please Come Out")
-            list_of_process[i].join()
+            list_of_process_qs = []
+            list_of_process = []
+            NUMBER_OF_PROCESSES = 2
+
+            for i in range(NUMBER_OF_PROCESSES):
+                list_of_process_qs.append(Queue())
+                list_of_process.append(Process(target=process_task, args=(list_of_process_qs[i],)))
+                list_of_process[i].start()
+
+            for my_message in reader.rows().pages:
+                df = my_message.to_dataframe()
+                if POD_TYPE == '2nd':
+                    sanction_name = df['name'].tolist()
+                    cust_id = ['Id Not Required'] * len(new_customer_list)
+                    data_dict = {
+                        'customer_id': cust_id,
+                        'customer_name': new_customer_list,
+                        'sanctioned_name': sanction_name
+                    }
+                else:
+                    cust_id = df['id'].tolist()
+                    cust_name = df['name'].tolist()
+                    data_dict = {
+                        'customer_id': cust_id,
+                        'customer_name': cust_name,
+                        'sanctioned_name': new_sanction_list
+                    }
+
+                counter = counter + 1
+                modulus = counter % NUMBER_OF_PROCESSES
+                list_of_process_qs[modulus].put(data_dict)
+
+            for i in range(NUMBER_OF_PROCESSES):
+                list_of_process_qs[i].put("Reading has ended, Please Come Out")
+                list_of_process[i].join()
 
         completed_msg = {"Ended at: ": str(int(round(time.time())))}
         producer.send('my-second-topic', json.dumps(completed_msg).encode('utf-8'))
