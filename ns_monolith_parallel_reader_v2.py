@@ -139,18 +139,13 @@ if __name__ == '__main__':
 
     for message in consumer:
 
-        producer = KafkaProducer(bootstrap_servers=['35.225.83.11:9094'], api_version=(0, 10))
-        received = {"Received at: ": str(int(round(time.time())))}
-        producer.send('my-second-topic', json.dumps(received).encode('utf-8'))
-        # stream = read_session.streams[0]  # read every stream from 0 to 3
-        # reader = bqstorageclient.read_rows(stream.name)
-
         # Decode Message from Interface
         x1 = message.value
         x2 = x1.decode('utf8')
         new_sanction_list = []
         new_customer_list = []
         executable = False
+
         if POD_TYPE == '2nd':
             new_customer_list = json.loads(x2)["customer_payload"]  # .split(',')
             if len(new_customer_list) > 0:
@@ -160,10 +155,14 @@ if __name__ == '__main__':
             if len(new_sanction_list) > 0:
                 executable = True
 
-        frames = []
-        counter = 0
-
         if executable:
+
+            frames = []
+            counter = 0
+
+            producer = KafkaProducer(bootstrap_servers=['35.225.83.11:9094'], api_version=(0, 10))
+            received = {"Received at: ": str(int(round(time.time())))}
+            producer.send('my-second-topic', json.dumps(received).encode('utf-8'))
 
             stream = read_session.streams[0]
             reader = bqstorageclient.read_rows(stream.name)
@@ -204,8 +203,8 @@ if __name__ == '__main__':
                 list_of_process_qs[i].put("Reading has ended, Please Come Out")
                 list_of_process[i].join()
 
-        completed_msg = {"Ended at: ": str(int(round(time.time())))}
-        producer.send('my-second-topic', json.dumps(completed_msg).encode('utf-8'))
-        if producer is not None:
-            producer.close()
+            completed_msg = {"Ended at: ": str(int(round(time.time())))}
+            producer.send('my-second-topic', json.dumps(completed_msg).encode('utf-8'))
+            if producer is not None:
+                producer.close()
         # print("Experiment Ended")
