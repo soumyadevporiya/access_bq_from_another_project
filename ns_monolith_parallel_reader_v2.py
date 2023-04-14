@@ -129,8 +129,10 @@ if __name__ == '__main__':
         table = f"projects/{project_id}/datasets/{dataset_id}/tables/{table_id}"
         read_options = ReadSession.TableReadOptions(selected_fields=["id", "name"])
         ITERATION = os.environ.get('ITER')
+        PCT = os.environ.get('PCT')
         # ITERATION = '0'
-        read_options.row_restriction = "partition_field BETWEEN 10 * {} AND 10 * {} + 9".format(ITERATION, ITERATION)
+        # Generate the result for roughly 10m customer records. run it for only 50 partitions
+        read_options.row_restriction = "partition_field BETWEEN 10 * {} AND 10 * {} + {}".format(ITERATION, ITERATION, PCT)
         requested_session = ReadSession(table=table, data_format=DataFormat.ARROW, read_options=read_options, )
         read_session = bqstorageclient.create_read_session(parent=parent, read_session=requested_session,
                                                            max_stream_count=1, )
