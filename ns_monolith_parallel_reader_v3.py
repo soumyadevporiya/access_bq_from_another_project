@@ -125,7 +125,7 @@ if __name__ == '__main__':
         project_id = "smooth-league-382303"
         dataset_id = "gcpdataset"
         parent = "projects/{}".format(project_id_billing)
-        table_id = "my-table-customer-records-2"
+        table_id = "my-table-customer-records-3"
         table = f"projects/{project_id}/datasets/{dataset_id}/tables/{table_id}"
         read_options = ReadSession.TableReadOptions(selected_fields=["id", "name"])
         ITERATION = os.environ.get('ITER')
