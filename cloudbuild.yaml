@@ -1,13 +1,13 @@
 steps:
   - name: 'gcr.io/cloud-builders/docker'
-    args: ['build', '-t', 'gcr.io/level-approach-382012/ns_monolith_parallel_reader_v2:latest','.']
+    args: ['build', '-t', 'gcr.io/level-approach-382012/ns_monolith_parallel_reader_v3:latest','.']
     id: 'build-image-myapp'
     waitFor: ['-']
   - name: 'gcr.io/cloud-builders/docker'
-    args: ['push','gcr.io/level-approach-382012/ns_monolith_parallel_reader_v2:latest']
+    args: ['push','gcr.io/level-approach-382012/ns_monolith_parallel_reader_v3:latest']
     id: 'push-image-to-container-registry'
     waitFor: ['build-image-myapp']
 options:
   logging: CLOUD_LOGGING_ONLY
 images:
-- 'gcr.io/level-approach-382012/ns_monolith_parallel_reader_v2:latest'
+- 'gcr.io/level-approach-382012/ns_monolith_parallel_reader_v3:latest'
