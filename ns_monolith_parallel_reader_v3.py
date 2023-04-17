@@ -105,6 +105,7 @@ if __name__ == '__main__':
     # os.environ['GOOGLE_APPLICATION_CREDENTIALS'] = 'D:/googleapi/smooth-league-382303-bb2d5d81cbed.json'
     # os.environ['GOOGLE_APPLICATION_CREDENTIALS'] = 'D:/googleapi/level-approach-382012-1b97f11ea02f.json'
     # POD_TYPE = '1st'
+    os.environ['GRPC_POLL_STRATEGY']='poll'
     POD_TYPE = os.environ.get('POD_TYPE')
 
     bqstorageclient = BigQueryReadClient()
