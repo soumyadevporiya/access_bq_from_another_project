@@ -123,7 +123,7 @@ if __name__ == '__main__':
         PCT = os.environ.get('PCT')
         # ITERATION = '0'
         # Generate the result for roughly 10m customer records. run it for only 50 partitions
-        read_options.row_restriction = "partition_field BETWEEN 10 * {} + 2 AND 10 * {} + {}".format(ITERATION, ITERATION, PCT)
+        read_options.row_restriction = "partition_field BETWEEN 10 * {} + 4 AND 10 * {} + {}".format(ITERATION, ITERATION, PCT)
         requested_session = ReadSession(table=table, data_format=DataFormat.ARROW, read_options=read_options, )
         read_session = bqstorageclient.create_read_session(parent=parent, read_session=requested_session,
                                                            max_stream_count=1, )
