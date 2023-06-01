@@ -131,6 +131,7 @@ if __name__ == '__main__':
                                                            max_stream_count=1, )
 
     # consumer = KafkaConsumer('my-topic', bootstrap_servers=['35.225.83.11:9094'], auto_offset_reset='latest')
+    # consumer = KafkaConsumer('my-topic', bootstrap_servers=['35.225.83.11:9094'], auto_offset_reset='latest')
     consumer = KafkaConsumer('my-topic', bootstrap_servers=['35.222.126.116:9094'], auto_offset_reset='latest')
 
     for message in consumer:
