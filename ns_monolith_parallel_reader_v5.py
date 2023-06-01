@@ -95,8 +95,8 @@ if __name__ == '__main__':
     os.environ['GRPC_POLL_STRATEGY'] = 'poll'
     # os.environ['GOOGLE_APPLICATION_CREDENTIALS'] = 'D:/googleapi/smooth-league-382303-bb2d5d81cbed.json'
     # os.environ['GOOGLE_APPLICATION_CREDENTIALS'] = 'D:/googleapi/level-approach-382012-1b97f11ea02f.json'
-    POD_TYPE = '1st'
-    # POD_TYPE = os.environ.get('POD_TYPE')
+    # POD_TYPE = '1st'
+    POD_TYPE = os.environ.get('POD_TYPE')
 
     bqstorageclient = BigQueryReadClient()
 
@@ -119,13 +119,14 @@ if __name__ == '__main__':
         table_id = "my-table-customer-records-2"
         table = f"projects/{project_id}/datasets/{dataset_id}/tables/{table_id}"
         read_options = ReadSession.TableReadOptions(selected_fields=["id", "name"])
-        # ITERATION = os.environ.get('ITER')
+        ITERATION = os.environ.get('ITER')
         # PCT = os.environ.get('PCT')
         # PCT = '49'
         # ITERATION = '0'
         # Generate the result for roughly 10m customer records. run it for only 50 partitions
         # read_options.row_restriction = "partition_field BETWEEN 10 * {} + 1 AND 10 * {} + {}".format(ITERATION, ITERATION, PCT)
-        read_options.row_restriction = "partition_field BETWEEN 0 AND 0"
+        # read_options.row_restriction = "partition_field BETWEEN 0 AND 0"
+        read_options.row_restriction = "partition_field BETWEEN 10 * {} AND 10 * {} + 9".format(ITERATION, ITERATION)
         requested_session = ReadSession(table=table, data_format=DataFormat.ARROW, read_options=read_options, )
         read_session = bqstorageclient.create_read_session(parent=parent, read_session=requested_session,
                                                            max_stream_count=1, )
