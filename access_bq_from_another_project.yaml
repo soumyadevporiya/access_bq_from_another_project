@@ -6,4 +6,4 @@ spec:
   restartPolicy: Never
   containers:
   - name: name-screening-monolithic
-    image: gcr.io/level-approach-382012/name_screening_monolithic:latest
+    image: gcr.io/tough-anagram-388502/name_screening_monolithic:latest
